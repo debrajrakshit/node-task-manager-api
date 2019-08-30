@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         minlength: 7,
         trim: true,
         validate(value) {
-            if(!validator.isLength(value, 7, 100)){
+            if(!validator.isLength(value,  {min: 7} )){
                 throw new Error('Password must be minimum 7 charecters long.');
             }
             else if(validator.contains(value.toLowerCase(), 'password')){
