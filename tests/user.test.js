@@ -89,8 +89,6 @@ test('Should delete account for user', async () => {
 
     const user = await User.findById(userOneId);
     expect(user).toBeNull();
-
-    expect(response.body).toBeNull();
 });
 
 test('Should not delete account for unauthenticated user', async () => {
