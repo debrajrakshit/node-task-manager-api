@@ -1,4 +1,6 @@
 const express = require('express');
+const multer = require('multer');
+const sharp = require('sharp');
 const Task = require('../models/task');
 const auth = require('../middleware/auth')
 const router = new express.Router();
@@ -94,7 +96,7 @@ router.delete('/tasks/:id', auth, async (req, res) => {
         const task = await Task.findOneAndDelete({ _id: req.params.id, owner: req.user._id });
 
         if (!task) {
-            res.status(404).send();
+            return res.status(404).send();
         }
 
         res.send(task);
@@ -102,5 +104,68 @@ router.delete('/tasks/:id', auth, async (req, res) => {
         res.status(500).send(err);
     }
 });
+
+const upload = multer({
+    limites: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, callback){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return callback(new Error('Please upload an image!'));
+        }
+
+        callback(undefined, true);
+    }
+});
+
+router.post('/tasks/:id/taskimage', auth, upload.single('taskimage'), async (req, res) => {
+    try{
+        const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
+
+        const task = await Task.findOne({ _id: req.params.id, owner: req.user._id });
+
+        if(!task){
+            return res.status(404).send('Task not found');
+        }
+        
+        task.taskimage = buffer;
+        await task.save();
+        res.send();
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+}, (err, req, res, next) => {
+    res.status(400).send({ error: err.message });
+});
+
+router.get('/tasks/:id/taskimage', async (req, res) => {
+    try{
+        const task = await Task.findOne({ _id: req.params.id });
+
+        if(!task || !task.taskimage){
+            throw new Error();
+        }
+
+        res.set('Content-Type', 'image/png');
+        res.send(task.taskimage);
+    }
+    catch(err){
+        res.status(404).send(err);
+    }
+});
+
+router.delete('/tasks/:id/taskimage', auth, async (req, res) => {
+    try{
+        const task = await Task.findOne({ _id: req.params.id, owner: req.user._id });
+        task.taskimage = undefined;
+        await task.save();
+        res.send(task.taskimage);
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+});
+
 
 module.exports = router;
