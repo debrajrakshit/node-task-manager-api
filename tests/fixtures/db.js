@@ -29,21 +29,24 @@ const taskOne = {
     _id: new mongoose.Types.ObjectId(),
     description: 'First task',
     completed: false,
-    owner: userOne._id
+    owner: userOne._id,
+    taskimage: undefined
 }
 
 const taskTwo = {
     _id: new mongoose.Types.ObjectId(),
     description: 'Second task',
     completed: true,
-    owner: userOne._id
+    owner: userOne._id,
+    taskimage: undefined
 }
 
 const taskThree = {
     _id: new mongoose.Types.ObjectId(),
     description: 'Third task',
     completed: true,
-    owner: userTwo._id
+    owner: userTwo._id,
+    taskimage: undefined
 }
 
 const setupDatabase = async() => {

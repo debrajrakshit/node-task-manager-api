@@ -50,6 +50,17 @@ test('Should not delete other users tasks', async () => {
     
 });
 
+test('Should upload task image', async() => {
+    const response = await request(app)
+        .post(`/tasks/${taskOne._id}/taskimage`)
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .attach('taskimage', 'tests/fixtures/philly.jpg')
+        .expect(200)
+
+    const task = await Task.findById(taskOne._id);
+    expect(task.taskimage).toEqual(expect.any(Buffer));
+});
+
 
 //
 // Task Test Ideas
